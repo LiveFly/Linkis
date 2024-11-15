@@ -482,16 +482,12 @@ alter sequence linkis_mg_gateway_auth_token_id_seq restart with 1;
 -- ----------------------------
 -- Default Tokens
 -- ----------------------------
-INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('QML-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
-INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('BML-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
+INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('LINKIS-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
 INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('WS-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
 INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('DSS-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
 INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('QUALITIS-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
 INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('VALIDATOR-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
-INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('LINKISCLI-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
 INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('DSM-AUTH','*','*','BDP',now(),now(),-1,'LINKIS');
-INSERT INTO "linkis_mg_gateway_auth_token"("token_name","legal_users","legal_hosts","business_owner","create_time","update_time","elapse_day","update_by") VALUES ('LINKIS_CLI_TEST','*','*','BDP',now(),now(),-1,'LINKIS');
-
 delete from linkis_ps_dm_datasource_type;
 alter sequence linkis_ps_dm_datasource_type_id_seq restart with 1;
 INSERT INTO "linkis_ps_dm_datasource_type" ("name", "description", "option", "classifier", "icon", "layers", "description_en", "option_en", "classifier_en") VALUES ('kafka', 'kafka', 'kafka', '消息队列', '', 2, 'Kafka', 'Kafka', 'Message Queue');
@@ -647,7 +643,7 @@ VALUES ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 
        ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 'driverClassName', '驱动类名(Driver class name)', 'Driver class name', 'com.mysql.jdbc.Driver', 'TEXT', NULL, '1', '驱动类名(Driver class name)', 'Driver class name', NULL, NULL, NULL, NULL,  now(), now()),
        ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 'params', '连接参数(Connection params)', 'Connection params', NULL, 'TEXT', NULL, '0', '输入JSON格式(Input JSON format): {"param":"value"}', 'Input JSON format: {"param":"value"}', NULL, NULL, NULL, NULL,  now(), now()),
        ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 'username', '用户名(Username)', 'Username', NULL, 'TEXT', NULL, '1', '用户名(Username)', 'Username', '^[0-9A-Za-z_-]+$', NULL, NULL, NULL,  now(), now()),
-       ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 'password', '密码(Password)', 'Password', NULL, 'PASSWORD', NULL, '1', '密码(Password)', 'Password', '', NULL, NULL, NULL,  now(), now()),
+       ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 'password', '密码(Password)', 'Password', NULL, 'PASSWORD', NULL, '0', '密码(Password)', 'Password', '', NULL, NULL, NULL,  now(), now()),
        ((select id from "linkis_ps_dm_datasource_type" where "name" = 'doris'), 'instance', '实例名(instance)', 'Instance', NULL, 'TEXT', NULL, '1', '实例名(instance)', 'Instance', NULL, NULL, NULL, NULL,  now(), now());
 
 -- https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-jdbc

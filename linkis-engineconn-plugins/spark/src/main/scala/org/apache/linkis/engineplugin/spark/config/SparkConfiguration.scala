@@ -68,6 +68,7 @@ object SparkConfiguration extends Logging {
   val SPARK_K8S_RESTART_POLICY = CommonVars[String]("linkis.spark.k8s.restartPolicy", "Never")
   val SPARK_K8S_SPARK_VERSION = CommonVars[String]("linkis.spark.k8s.sparkVersion", "3.2.1")
   val SPARK_K8S_NAMESPACE = CommonVars[String]("linkis.spark.k8s.namespace", "default")
+  val SPARK_K8S_UI_PORT = CommonVars[String]("linkis.spark.k8s.ui.port", "4040")
 
   val SPARK_K8S_EXECUTOR_REQUEST_CORES =
     CommonVars[String]("linkis.spark.k8s.executor.request.cores", "1")
@@ -80,8 +81,13 @@ object SparkConfiguration extends Logging {
 
   val SPARK_PYTHON_VERSION = CommonVars[String]("spark.python.version", "python")
 
+  val SPARK_PYTHON_FILES = CommonVars[String]("spark.submit.pyFiles", "")
+
   val SPARK_PYTHON_TEST_MODE_ENABLE =
     CommonVars[Boolean]("linkis.spark.python.test.mode.enable", false)
+
+  val SPARK_SCALA_KILL_COLSE_THREAD_ENABLE =
+    CommonVars[Boolean]("linkis.spark.scala.kill.close.thread.enable", true)
 
   val SPARK_PYTHON_TEST_MODE_MIX__PYSHELL_PATH = CommonVars[String](
     "linkis.spark.python.mix.pyshell.path",
@@ -150,7 +156,7 @@ object SparkConfiguration extends Logging {
     CommonVars("wds.linkis.spark.engineconn.fatal.log", "error writing class;OutOfMemoryError")
 
   val PYSPARK_PYTHON3_PATH =
-    CommonVars[String]("pyspark.python3.path", "/appcom/Install/anaconda3/bin/python")
+    CommonVars[String]("pyspark.python3.path", "python3")
 
   val ENABLE_REPLACE_PACKAGE_NAME =
     CommonVars("wds.linkis.spark.engine.scala.replace_package_header.enable", true)
@@ -162,6 +168,7 @@ object SparkConfiguration extends Logging {
 
   val REPLACE_PACKAGE_TO_HEADER = "org.apache.linkis"
 
+  val LINKIS_SPARK_CONF = CommonVars[String]("spark.conf", "")
   val SPARK_APPLICATION_ARGS = CommonVars("spark.app.args", "")
   val SPARK_APPLICATION_MAIN_CLASS = CommonVars("spark.app.main.class", "")
 
@@ -174,6 +181,9 @@ object SparkConfiguration extends Logging {
   val SPARK_ONCE_YARN_RESTFUL_URL = CommonVars[String]("linkis.spark.once.yarn.restful.url", "")
 
   val LINKIS_SPARK_ETL_SUPPORT_HUDI = CommonVars[Boolean]("linkis.spark.etl.support.hudi", false)
+
+  val LINKIS_PYSPARK_USE_SECURE_RANDOM =
+    CommonVars[Boolean]("linkis.pyspark.use.secure.random", false).getValue
 
   val SCALA_PARSE_APPEND_CODE =
     CommonVars("linkis.scala.parse.append.code", "val linkisVar=1").getValue

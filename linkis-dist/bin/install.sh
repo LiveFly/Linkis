@@ -78,7 +78,6 @@ else
   done
 fi
 
-
 ########################  init LINKIS related env  ################################
 if [ "$LINKIS_HOME" = "" ]
 then
@@ -111,31 +110,30 @@ else
     isSuccess "cp ${LINKIS_PACKAGE} to $LINKIS_HOME"
 fi
 
+if [ "$DISCOVERY" == "NACOS" ]; then
+  rm -rf $LINKIS_HOME/conf/application-*
+  mv $LINKIS_HOME/conf/nacos/* $LINKIS_HOME/conf
+  echo "Use NACOS mode"
+else
+  echo "Use EUREKA mode"
+fi
+rm -rf $LINKIS_HOME/conf/nacos
+
 cp ${LINKIS_CONFIG_PATH} $LINKIS_HOME/conf
 cp ${LINKIS_DB_CONFIG_PATH} $LINKIS_HOME/conf
 
 common_conf=$LINKIS_HOME/conf/linkis.properties
 
-RANDOM_BML_TOKEN="BML-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
-RANDOM_LINKIS_CLI_TEST_TOKEN="LINKIS_CLI-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
+RANDOM_BML_TOKEN="LINKIS-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
 RANDOM_WS_TOKEN="WS-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
 RANDOM_DSM_TOKEN="DSM-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
-RANDOM_QML_TOKEN="QML-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
 RANDOM_DSS_TOKEN="DSS-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
 RANDOM_QUALITIS_TOKEN="QUALITIS-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
 RANDOM_VALIDATOR_TOKEN="VALIDATOR-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
-RANDOM_LINKISCLI_TOKEN="LINKISCLI-`cat /proc/sys/kernel/random/uuid | awk -F- '{print $1$2$3$4$5}'`"
 if [ $DEBUG_MODE != "true" ];then
-  sed -i ${txt}  "s#BML-AUTH#$RANDOM_BML_TOKEN#g" $LINKIS_HOME/conf/linkis-cli/linkis-cli.properties
-  sed -i ${txt}  "s#BML-AUTH#$RANDOM_BML_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#LINKIS_CLI_TEST#$RANDOM_LINKIS_CLI_TEST_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#WS-AUTH#$RANDOM_WS_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#DSM-AUTH#$RANDOM_DSM_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#QML-AUTH#$RANDOM_QML_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#DSS-AUTH#$RANDOM_DSS_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#QUALITIS-AUTH#$RANDOM_QUALITIS_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#VALIDATOR-AUTH#$RANDOM_VALIDATOR_TOKEN#g" $common_conf
-  sed -i ${txt}  "s#LINKISCLI-AUTH#$RANDOM_LINKISCLI_TOKEN#g" $common_conf
+  sed -i ${txt}  "s#LINKIS-AUTH#$RANDOM_BML_TOKEN#g" $LINKIS_HOME/conf/linkis-cli/linkis-cli.properties
+  sed -i ${txt}  "s#LINKIS-AUTH#$RANDOM_BML_TOKEN#g" $common_conf
+  sed -i ${txt}  "s#LINKIS-AUTH#$RANDOM_BML_TOKEN#g" $LINKIS_HOME/admin/configuration_helper.sh
 fi
 
 echo "======= Step 3: Create necessary directory =========="
@@ -222,15 +220,12 @@ if [[ 'postgresql' = "$dbType" ]];then
   dml_file_name=linkis_dml_pg.sql
 fi
 if [ $DEBUG_MODE != "true" ];then
-  sed -i ${txt}  "s#BML-AUTH#$RANDOM_BML_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
-  sed -i ${txt}  "s#LINKIS_CLI_TEST#$RANDOM_LINKIS_CLI_TEST_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
+  sed -i ${txt}  "s#LINKIS-AUTH#$RANDOM_BML_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
   sed -i ${txt}  "s#WS-AUTH#$RANDOM_WS_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
   sed -i ${txt}  "s#DSM-AUTH#$RANDOM_DSM_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
-  sed -i ${txt}  "s#QML-AUTH#$RANDOM_QML_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
   sed -i ${txt}  "s#DSS-AUTH#$RANDOM_DSS_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
   sed -i ${txt}  "s#QUALITIS-AUTH#$RANDOM_QUALITIS_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
   sed -i ${txt}  "s#VALIDATOR-AUTH#$RANDOM_VALIDATOR_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
-  sed -i ${txt}  "s#LINKISCLI-AUTH#$RANDOM_LINKISCLI_TOKEN#g" $LINKIS_HOME/db/${dml_file_name}
 fi
 
 
@@ -407,34 +402,50 @@ fi
 
 currentTime=`date +%Y%m%d%H%M%S`
 
-##eureka
-sed -i ${txt}  "s#defaultZone:.*#defaultZone: $EUREKA_URL#g" $LINKIS_HOME/conf/application-eureka.yml
-sed -i ${txt}  "s#port:.*#port: $EUREKA_PORT#g" $LINKIS_HOME/conf/application-eureka.yml
 sed -i ${txt}  "s#linkis.app.version:.*#linkis.app.version: $LINKIS_VERSION-$currentTime#g" $LINKIS_HOME/conf/application-eureka.yml
-
-##server application.yml
-sed -i ${txt}  "s#defaultZone:.*#defaultZone: $EUREKA_URL#g" $LINKIS_HOME/conf/application-linkis.yml
 sed -i ${txt}  "s#linkis.app.version:.*#linkis.app.version: $LINKIS_VERSION-$currentTime#g" $LINKIS_HOME/conf/application-linkis.yml
-
-sed -i ${txt}  "s#defaultZone:.*#defaultZone: $EUREKA_URL#g" $LINKIS_HOME/conf/application-engineconn.yml
 sed -i ${txt}  "s#linkis.app.version:.*#linkis.app.version: $LINKIS_VERSION-$currentTime#g" $LINKIS_HOME/conf/application-engineconn.yml
 
-if [ "$EUREKA_PREFER_IP" == "true" ]; then
-  sed -i ${txt}  "s/# prefer-ip-address:/prefer-ip-address:/g" $LINKIS_HOME/conf/application-eureka.yml
+sed -i ${txt}  "s#DISCOVERY=.*#DISCOVERY=$DISCOVERY#g" $LINKIS_HOME/sbin/common.sh
 
-  sed -i ${txt}  "s/# prefer-ip-address:/prefer-ip-address:/g" $LINKIS_HOME/conf/application-linkis.yml
-  sed -i ${txt}  "s/# instance-id:/instance-id:/g" $LINKIS_HOME/conf/application-linkis.yml
+if [ "$DISCOVERY" == "EUREKA" ]; then
+  ##eureka
+  sed -i ${txt}  "s#defaultZone:.*#defaultZone: $EUREKA_URL#g" $LINKIS_HOME/conf/application-eureka.yml
+  sed -i ${txt}  "s#port:.*#port: $EUREKA_PORT#g" $LINKIS_HOME/conf/application-eureka.yml
+  sed -i ${txt}  "s#linkis.app.version:.*#linkis.app.version: $LINKIS_VERSION-$currentTime#g" $LINKIS_HOME/conf/application-eureka.yml
 
-  sed -i ${txt}  "s/# prefer-ip-address:/prefer-ip-address:/g" $LINKIS_HOME/conf/application-engineconn.yml
-  sed -i ${txt}  "s/# instance-id:/instance-id:/g" $LINKIS_HOME/conf/application-linkis.yml
+  ##server application.yml
+  sed -i ${txt}  "s#defaultZone:.*#defaultZone: $EUREKA_URL#g" $LINKIS_HOME/conf/application-linkis.yml
+
+  sed -i ${txt}  "s#defaultZone:.*#defaultZone: $EUREKA_URL#g" $LINKIS_HOME/conf/application-engineconn.yml
+
+  if [ "$EUREKA_PREFER_IP" == "true" ]; then
+    sed -i ${txt}  "s/# prefer-ip-address:/prefer-ip-address:/g" $LINKIS_HOME/conf/application-eureka.yml
+
+    sed -i ${txt}  "s/# prefer-ip-address:/prefer-ip-address:/g" $LINKIS_HOME/conf/application-linkis.yml
+    sed -i ${txt}  "s/# instance-id:/instance-id:/g" $LINKIS_HOME/conf/application-linkis.yml
+
+    sed -i ${txt}  "s/# prefer-ip-address:/prefer-ip-address:/g" $LINKIS_HOME/conf/application-engineconn.yml
+    sed -i ${txt}  "s/# instance-id:/instance-id:/g" $LINKIS_HOME/conf/application-linkis.yml
+
+    sed -i ${txt}  "s#linkis.discovery.prefer-ip-address.*#linkis.discovery.prefer-ip-address=true#g" $common_conf
+  fi
+  export DISCOVERY_SERVER_ADDRES=$EUREKA_INSTALL_IP:$EUREKA_POR
+fi
+
+if [ "$DISCOVERY" == "NACOS" ]; then
+  sed -i ${txt}  "s#server-addr:.*#server-addr: $NACOS_SERVER_ADDR#g" $LINKIS_HOME/conf/application-linkis.yml
+  sed -i ${txt}  "s#server-addr:.*#server-addr: $NACOS_SERVER_ADDR#g" $LINKIS_HOME/conf/application-engineconn.yml
 
   sed -i ${txt}  "s#linkis.discovery.prefer-ip-address.*#linkis.discovery.prefer-ip-address=true#g" $common_conf
+
+  export DISCOVERY_SERVER_ADDRES=$NACOS_SERVER_ADDR
 fi
 
 echo "update conf $common_conf"
 sed -i ${txt}  "s#wds.linkis.server.version.*#wds.linkis.server.version=$LINKIS_SERVER_VERSION#g" $common_conf
 sed -i ${txt}  "s#wds.linkis.gateway.url.*#wds.linkis.gateway.url=http://$GATEWAY_INSTALL_IP:$GATEWAY_PORT#g" $common_conf
-sed -i ${txt}  "s#linkis.discovery.server-address.*#linkis.discovery.server-address=http://$EUREKA_INSTALL_IP:$EUREKA_PORT#g" $common_conf
+sed -i ${txt}  "s#linkis.discovery.server-address.*#linkis.discovery.server-address=http://$DISCOVERY_SERVER_ADDRES#g" $common_conf
 if [[ 'postgresql' = "$dbType" ]];then
   sed -i ${txt}  "s#wds.linkis.server.mybatis.datasource.url.*#wds.linkis.server.mybatis.datasource.url=jdbc:postgresql://${PG_HOST}:${PG_PORT}/${PG_DB}?currentSchema=${PG_SCHEMA}\&stringtype=unspecified#g" $common_conf
   sed -i ${txt}  "s#wds.linkis.server.mybatis.datasource.username.*#wds.linkis.server.mybatis.datasource.username=$PG_USER#g" $common_conf
@@ -533,6 +544,7 @@ sed -i ${txt}  "s#spring.eureka.instance.metadata-map.linkis.conf.version.*#spri
 if [ "$RESULT_SET_ROOT_PATH" != "" ]
 then
   sed -i ${txt}  "s#wds.linkis.resultSet.store.path.*#wds.linkis.resultSet.store.path=$RESULT_SET_ROOT_PATH#g" $entrance_conf
+  sed -i ${txt}  "s#resultSetRootDir=.*#resultSetRootDir=$RESULT_SET_ROOT_PATH#g" $LINKIS_HOME/admin/linkis_task_res_log_clear.sh
 fi
 
 publicservice_conf=$LINKIS_HOME/conf/linkis-ps-publicservice.properties

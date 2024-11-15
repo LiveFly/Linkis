@@ -28,14 +28,15 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class TokenDaoTest extends BaseDaoTest {
 
   private static final Logger logger = LoggerFactory.getLogger(BaseDaoTest.class);
 
   private static String TokenName =
-      CommonVars.apply("wds.linkis.bml.auth.token.value", "BML-AUTH").getValue();
+      CommonVars.apply("wds.linkis.bml.auth.token.value", "LINKIS-AUTH").getValue();
 
   @Autowired TokenDao tokenDao;
 

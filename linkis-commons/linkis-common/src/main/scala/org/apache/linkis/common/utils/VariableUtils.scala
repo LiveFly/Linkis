@@ -43,6 +43,8 @@ object VariableUtils extends Logging {
 
   val RUN_TODAY_H = "run_today_h"
 
+  val RUN_TODAY_HOUR = "run_today_hour"
+
   private val codeReg =
     "\\$\\{\\s*[A-Za-z][A-Za-z0-9_\\.]*\\s*[\\+\\-\\*/]?\\s*[A-Za-z0-9_\\.]*\\s*\\}".r
 
@@ -81,6 +83,13 @@ object VariableUtils extends Logging {
       if (StringUtils.isNotBlank(runTodayHStr)) {
         val runTodayH = new CustomHourType(runTodayHStr, false)
         nameAndType(RUN_TODAY_H) = HourType(runTodayH)
+      }
+    }
+    if (variables.containsKey(RUN_TODAY_HOUR)) {
+      val runTodayHourStr = variables.get(RUN_TODAY_HOUR).asInstanceOf[String]
+      if (StringUtils.isNotBlank(runTodayHourStr)) {
+        val runTodayHour = new CustomHourType(runTodayHourStr, false)
+        nameAndType(RUN_TODAY_HOUR) = HourType(runTodayHour)
       }
     }
     initAllDateVars(run_date, nameAndType)
@@ -141,18 +150,27 @@ object VariableUtils extends Logging {
         nameAndType(RUN_TODAY_H) = HourType(runTodayH)
       }
     }
+    if (variables.containsKey(RUN_TODAY_HOUR)) {
+      val runTodayHourStr = variables.get(RUN_TODAY_HOUR).asInstanceOf[String]
+      if (StringUtils.isNotBlank(runTodayHourStr)) {
+        val runTodayHour = new CustomHourType(runTodayHourStr, false)
+        nameAndType(RUN_TODAY_HOUR) = HourType(runTodayHour)
+      }
+    }
     initAllDateVars(run_date, nameAndType)
     val codeOperation = parserVar(code, nameAndType)
-    parserDate(codeOperation, run_date)
+    parserDate(codeType, codeOperation, run_date)
   }
 
+  @deprecated
   private def parserDate(code: String, run_date: CustomDateType): String = {
-    if (Configuration.VARIABLE_OPERATION) {
-      val zonedDateTime: ZonedDateTime = VariableOperationUtils.toZonedDateTime(run_date.getDate)
-      VariableOperationUtils.replaces(zonedDateTime, code)
-    } else {
-      code
-    }
+    val zonedDateTime: ZonedDateTime = VariableOperationUtils.toZonedDateTime(run_date.getDate)
+    VariableOperationUtils.replaces(zonedDateTime, code)
+  }
+
+  private def parserDate(codeType: String, code: String, run_date: CustomDateType): String = {
+    val zonedDateTime: ZonedDateTime = VariableOperationUtils.toZonedDateTime(run_date.getDate)
+    VariableOperationUtils.replaces(codeType, zonedDateTime, code)
   }
 
   private def initAllDateVars(
@@ -255,6 +273,30 @@ object VariableUtils extends Logging {
     nameAndType("run_today_h_std") = HourType(
       new CustomHourType(nameAndType(RUN_TODAY_H).asInstanceOf[HourType].getValue, true)
     )
+    // calculate run_today_hour base on run_date
+    if (nameAndType.contains("run_today_hour")) {
+      nameAndType("run_today_hour").asInstanceOf[HourType]
+    } else {
+      val run_today_hour = new CustomHourType(getCurHour(false, run_today.toString), false)
+      nameAndType("run_today_hour") = HourType(run_today_hour)
+    }
+    nameAndType("run_today_hour_std") = HourType(
+      new CustomHourType(nameAndType("run_today_hour").asInstanceOf[HourType].getValue, true)
+    )
+    // calculate run_last_mon base on run_today
+    val run_roday_mon = new CustomMonType(getMonthDay(false, run_today.getDate), false)
+    nameAndType("run_last_mon_now") = MonType(new CustomMonType(run_roday_mon - 1, false, false))
+    nameAndType("run_last_mon_now_std") = MonType(new CustomMonType(run_roday_mon - 1, true, false))
+    // calculate run_current_mon_now base on run_today
+    nameAndType("run_current_mon_now") = MonType(
+      new CustomMonType(run_roday_mon.toString, false, false)
+    )
+    nameAndType("run_current_mon_now_std") = MonType(
+      new CustomMonType(run_roday_mon.toString, true, false)
+    )
+    // calculate run_mon_now base on run_today
+    nameAndType("run_mon_now") = MonType(new CustomMonType(run_roday_mon.toString, false, false))
+    nameAndType("run_mon_now_std") = MonType(new CustomMonType(run_roday_mon.toString, true, false))
   }
 
   /**
@@ -337,7 +379,7 @@ object VariableUtils extends Logging {
    *
    * @param code
    *   :code
-   * @param codeType
+   * @param languageType
    *   :SQL,PYTHON
    * @return
    */
@@ -346,27 +388,37 @@ object VariableUtils extends Logging {
 
     var varString: String = null
     var errString: String = null
+    var rightVarString: String = null
 
     languageType match {
       case CodeAndRunTypeUtils.LANGUAGE_TYPE_SQL =>
         varString = """\s*--@set\s*.+\s*"""
+        rightVarString = """^\s*--@set\s*.+\s*"""
         errString = """\s*--@.*"""
       case CodeAndRunTypeUtils.LANGUAGE_TYPE_PYTHON | CodeAndRunTypeUtils.LANGUAGE_TYPE_SHELL =>
         varString = """\s*#@set\s*.+\s*"""
+        rightVarString = """^\s*#@set\s*.+\s*"""
         errString = """\s*#@"""
       case CodeAndRunTypeUtils.LANGUAGE_TYPE_SCALA =>
         varString = """\s*//@set\s*.+\s*"""
+        rightVarString = """^\s*//@set\s*.+\s*"""
         errString = """\s*//@.+"""
       case CodeAndRunTypeUtils.LANGUAGE_TYPE_JAVA =>
         varString = """\s*!!@set\s*.+\s*"""
+        rightVarString = """^\s*!!@set\s*.+\s*"""
       case _ =>
         return nameAndValue
     }
 
     val customRegex = varString.r.unanchored
+    val customRightRegex = rightVarString.r.unanchored
     val errRegex = errString.r.unanchored
     code.split("\n").foreach { str =>
       {
+
+        if (customRightRegex.unapplySeq(str).size < customRegex.unapplySeq(str).size) {
+          logger.warn(s"code:$str is wrong custom variable format!!!")
+        }
         str match {
           case customRegex() =>
             val clearStr = if (str.endsWith(";")) str.substring(0, str.length - 1) else str

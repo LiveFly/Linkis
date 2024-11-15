@@ -18,6 +18,7 @@
 package org.apache.linkis.manager.rm.domain;
 
 import org.apache.linkis.governance.common.conf.GovernanceCommonConf;
+import org.apache.linkis.manager.common.exception.RMErrorException;
 import org.apache.linkis.manager.label.builder.CombinedLabelBuilder;
 import org.apache.linkis.manager.label.entity.CombinedLabel;
 import org.apache.linkis.manager.label.entity.Label;
@@ -49,7 +50,7 @@ public class RMLabelContainer {
   private EngineTypeLabel engineTypeLabel;
   private UserCreatorLabel userCreatorLabel;
   private EngineInstanceLabel engineInstanceLabel;
-  private CombinedLabel combinedUserCreatorEngineTypeLabel;
+  private CombinedLabel combinedResourceLabel;
   private Label currentLabel;
 
   public RMLabelContainer(List<Label<?>> labels) {
@@ -57,11 +58,11 @@ public class RMLabelContainer {
     this.lockedLabels = Lists.newArrayList();
     try {
       if (getUserCreatorLabel() != null && getEngineTypeLabel() != null) {
-        this.combinedUserCreatorEngineTypeLabel =
+        this.combinedResourceLabel =
             (CombinedLabel)
                 combinedLabelBuilder.build(
                     "", Lists.newArrayList(getUserCreatorLabel(), getEngineTypeLabel()));
-        this.labels.add(combinedUserCreatorEngineTypeLabel);
+        this.labels.add(combinedResourceLabel);
       }
     } catch (Exception e) {
       logger.warn("failed to get combinedUserCreatorEngineTypeLabel", e);
@@ -101,7 +102,7 @@ public class RMLabelContainer {
     return null;
   }
 
-  public EMInstanceLabel getEMInstanceLabel() {
+  public EMInstanceLabel getEMInstanceLabel() throws RMErrorException {
     if (EMInstanceLabel == null) {
       for (Label label : labels) {
         if (label instanceof EMInstanceLabel) {
@@ -115,7 +116,7 @@ public class RMLabelContainer {
     return null;
   }
 
-  public EngineTypeLabel getEngineTypeLabel() {
+  public EngineTypeLabel getEngineTypeLabel() throws RMErrorException {
     if (engineTypeLabel == null) {
       for (Label label : labels) {
         if (label instanceof EngineTypeLabel) {
@@ -129,7 +130,7 @@ public class RMLabelContainer {
     return null;
   }
 
-  public UserCreatorLabel getUserCreatorLabel() {
+  public UserCreatorLabel getUserCreatorLabel() throws RMErrorException {
     if (userCreatorLabel == null) {
       for (Label label : labels) {
         if (label instanceof UserCreatorLabel) {
@@ -142,7 +143,7 @@ public class RMLabelContainer {
     return null;
   }
 
-  public EngineInstanceLabel getEngineInstanceLabel() {
+  public EngineInstanceLabel getEngineInstanceLabel() throws RMErrorException {
     if (engineInstanceLabel == null) {
       for (Label label : labels) {
         if (label instanceof EngineInstanceLabel) {
@@ -156,8 +157,8 @@ public class RMLabelContainer {
     return null;
   }
 
-  public CombinedLabel getCombinedUserCreatorEngineTypeLabel() {
-    return combinedUserCreatorEngineTypeLabel;
+  public CombinedLabel getCombinedResourceLabel() {
+    return combinedResourceLabel;
   }
 
   public Label getCurrentLabel() {
@@ -172,7 +173,7 @@ public class RMLabelContainer {
     return lockedLabels;
   }
 
-  public String getEngineServiceName() {
+  public String getEngineServiceName() throws RMErrorException {
     return GovernanceCommonConf.ENGINE_CONN_SPRING_NAME().getValue();
   }
 

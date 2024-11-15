@@ -35,9 +35,7 @@ public class SpecialResource extends Resource {
   private final Map<String, Object> resources;
 
   public SpecialResource(Map<String, Object> resources) {
-    this.resources =
-        resources.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    this.resources = resources;
   }
 
   public Map<String, Object> getResources() {
@@ -346,6 +344,17 @@ public class SpecialResource extends Resource {
   @Override
   public boolean less(Resource r) {
     return !notLess(r);
+  }
+
+  @Override
+  public int compare(Resource r) {
+    if (this.moreThan(r)) {
+      return 1;
+    } else if (this.less(r)) {
+      return -1;
+    } else {
+      return 0;
+    }
   }
 
   @Override

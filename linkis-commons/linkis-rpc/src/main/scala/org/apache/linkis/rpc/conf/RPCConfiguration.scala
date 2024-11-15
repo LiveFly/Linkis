@@ -65,19 +65,21 @@ object RPCConfiguration {
     "cs,contextservice,data-source-manager,metadataQuery,metadatamanager,query,jobhistory,application,configuration,filesystem,udf,variable,microservice,errorcode,bml,datasource,basedata-manager"
   ).getValue.split(",")
 
-  val METADATAQUERY_SERVICE_APPLICATION_NAME: CommonVars[String] =
-    CommonVars("wds.linkis.gateway.conf.publicservice.name", "linkis-ps-metadataquery")
-
-  val METADATAQUERY_SERVICE_LIST: Array[String] = CommonVars(
-    "wds.linkis.gateway.conf.metadataquery.list",
-    "metadatamanager,metadataquery"
-  ).getValue.split(",")
-
   val LINKIS_MANAGER_SERVICE_NAME: CommonVars[String] =
     CommonVars("wds.linkis.gateway.conf.linkismanager.name", "linkis-cg-linkismanager")
 
   val LINKIS_MANAGER_SERVICE_LIST: Array[String] =
     CommonVars("wds.linkis.gateway.conf.linkismanager.list", "linkisManager,engineplugin").getValue
+      .split(",")
+
+  val LINKIS_DATASOURCE_SERVICE_NAME: CommonVars[String] =
+    CommonVars("linkis.gateway.conf.linkisdatasource.name", "linkis-ps-datasource")
+
+  val LINKIS_DATASOURCE_SERVICE_LIST: Array[String] =
+    CommonVars(
+      "linkis.gateway.conf.linkisdatasource.list",
+      "data-source-manager,metadataquery,datasource,metadataQuery,metadatamanager"
+    ).getValue
       .split(",")
 
   val BDP_RPC_INSTANCE_ALIAS_SERVICE_REFRESH_INTERVAL: CommonVars[TimeType] =
@@ -95,12 +97,16 @@ object RPCConfiguration {
   val SERVICE_SCAN_PACKAGE: String =
     CommonVars("wds.linkis.ms.service.scan.package", "org.apache.linkis").getValue
 
-  val ENABLE_SPRING_PARAMS: Boolean =
-    CommonVars("wds.linkis.rpc.spring.params.enable", false).getValue
-
   // unit is HOUR
   val SENDER_CACHE_CLEANING_HOUR =
     CommonVars("linkis.rpc.sender.cache.cleaning.time.hour", 6).getValue
+
+  // unit is HOUR
+  val RPC_RETRY_NUMBER =
+    CommonVars("linkis.rpc.retry.number", 5).getValue
+
+  val RPC_RETRY_PERIOD =
+    CommonVars[Long]("linkis.rpc.retry.period", 30000L).getValue
 
   val REFLECTIONS = new Reflections(
     SERVICE_SCAN_PACKAGE,
@@ -111,6 +117,15 @@ object RPCConfiguration {
 
   val BDP_RPC_CACHE_CONF_EXPIRE_TIME: CommonVars[Long] =
     CommonVars("wds.linkis.rpc.cache.expire.time", 120000L)
+
+  val ENABLE_SPRING_PARAMS: Boolean =
+    CommonVars("wds.linkis.rpc.spring.params.enable", false).getValue
+
+  val RPC_READ_TIME_OUT: Int =
+    CommonVars[Int]("spring.ribbon.ReadTimeout", 100000).getValue
+
+  val RPC_CONNECT_TIME_OUT: Int =
+    CommonVars[Int]("spring.ribbon.ConnectTimeout", 100000).getValue
 
   val CONTEXT_SERVICE_REQUEST_PREFIX = "contextservice"
 
@@ -123,5 +138,18 @@ object RPCConfiguration {
     } else {
       CONTEXT_SERVICE_APPLICATION_NAME.getValue
     }
+
+  val configOptions: feign.Request.Options =
+    new feign.Request.Options(RPC_CONNECT_TIME_OUT, RPC_READ_TIME_OUT, true)
+
+  val RPC_OBJECT_PREFIX_WHITE_LIST: Array[String] =
+    CommonVars(
+      "wds.linkis.rpc.object.class.prefix.whitelist",
+      "org.apache.linkis,com.webank.wedatasphere,com.wedatasphere"
+    ).getValue
+      .split(",")
+
+  val ENABLE_RPC_OBJECT_PREFIX_WHITE_LIST_CHECK: Boolean =
+    CommonVars("wds.linkis.rpc.object.class.prefix.whitelist.check.enable", true).getValue
 
 }

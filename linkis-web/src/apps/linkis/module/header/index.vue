@@ -27,7 +27,7 @@
             src=""
             :alt="$t('message.common.logoName')"
           >
-          <span class="version">v{{sysVersion}}</span>
+          <span class="version">{{sysVersion}}{{clusterInfo ? `(${clusterInfo})`:''}}</span>
         </div>
       </div>
       <div
@@ -72,6 +72,7 @@ export default {
   data() {
     return {
       sysVersion: process.env.VUE_APP_VERSION,
+      clusterInfo: '',
       isUserMenuShow: false,
       userName: "",
       isSandbox: process.env.NODE_ENV === "sandbox",
@@ -84,6 +85,7 @@ export default {
   methods: {
     init() {
       this.userName = storage.get('userName');
+      this.clusterInfo = storage.get('clusterInfo') || ''
     },
     handleOutsideClick() {
       this.isUserMenuShow = false;
@@ -97,13 +99,13 @@ export default {
     linkTo(type) {
       let url = "";
       if (type === "book") {
-        url = `https://github.com/WeBankFinTech/DataSphereStudio/blob/master/docs/zh_CN/ch3/DSS_User_Manual.md`;
+        url = `https://linkis.apache.org/`;
       } else if (type === "github") {
-        url = `https://github.com/WeBankFinTech/DataSphereStudio`;
+        url = `https://linkis.apache.org/`;
       } else if (type === "freedback") {
-        url = "https://wj.qq.com/s2/4943071/c037/ ";
+        url = "https://linkis.apache.org/";
         if (localStorage.getItem("locale") === "en") {
-          url = "https://wj.qq.com/s2/4943706/5a8b";
+          url = "https://linkis.apache.org/";
         }
       }
       util.windowOpen(url);

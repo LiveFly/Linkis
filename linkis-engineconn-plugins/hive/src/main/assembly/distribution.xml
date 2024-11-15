@@ -104,7 +104,6 @@
                 <exclude>javax.xml.bind:jaxb-api:jar</exclude>
                 <exclude>javax.xml.stream:stax-api:jar</exclude>
                 <exclude>mysql:mysql-connector-java:jar</exclude>
-                <exclude>org.antlr:antlr-runtime:jar</exclude>
                 <exclude>org.antlr:stringtemplate:jar</exclude>
                 <exclude>org.apache.commons:commons-compress:jar</exclude>
                 <exclude>org.apache.commons:commons-math:jar</exclude>
@@ -127,8 +126,8 @@
                 <exclude>log4j:log4j:jar</exclude>
                 <exclude>org.apache.zookeeper:zookeeper:jar</exclude>
                 <exclude>org.aspectj:aspectjweaver:jar</exclude>
-                <exclude>org.bouncycastle:bcpkix-jdk15on:jar</exclude>
-                <exclude>org.bouncycastle:bcprov-jdk15on:jar</exclude>
+                <exclude>org.bouncycastle:bcpkix-jdk18on:jar</exclude>
+                <exclude>org.bouncycastle:bcprov-jdk18on:jar</exclude>
                 <exclude>org.codehaus.jackson:jackson-jaxrs:jar</exclude>
                 <exclude>org.codehaus.jackson:jackson-xc:jar</exclude>
                 <exclude>org.codehaus.jettison:jettison:jar</exclude>

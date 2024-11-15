@@ -94,6 +94,12 @@ public class MemoryResource extends Resource {
   }
 
   @Override
+  public int compare(Resource resource) {
+    MemoryResource r = toMemoryResource(resource);
+    return Long.compare(this.getMemory(), r.getMemory());
+  }
+
+  @Override
   public boolean caseMore(Resource r) {
     return moreThan(r);
   }
@@ -106,7 +112,7 @@ public class MemoryResource extends Resource {
 
   @Override
   public String toJson() {
-    return " \"memory\":\"" + ByteTimeUtils.bytesToString(memory) + " ";
+    return " {\"memory\":\"" + ByteTimeUtils.bytesToString(memory) + " }";
   }
 
   @Override
